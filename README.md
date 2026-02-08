@@ -14,7 +14,9 @@ Este projeto implementa um pipeline completo para análise de curvas de luz este
 
 O fluxo observado de uma estrela com planeta em trânsito é modelado por:
 
-$$F(t) = F_0 \cdot \left[1 - \delta \cdot T(t)\right] + \varepsilon(t) + V(t) + S(t)$$
+```math
+F(t) = F_0 \cdot \left[1 - \delta \cdot T(t)\right] + \varepsilon(t) + V(t) + S(t)
+```
 
 Onde:
 - $F_0$ : Fluxo base normalizado
@@ -28,7 +30,9 @@ Onde:
 
 A intensidade do disco estelar segue a lei de limb darkening:
 
-$$I(\mu) = 1 - c_1(1 - \mu) - c_2(1 - \mu)^2$$
+```math
+I(\mu) = 1 - c_1(1 - \mu) - c_2(1 - \mu)^2
+```
 
 Onde $\mu = \cos(\theta)$ é o cosseno do ângulo entre a linha de visada e a normal à superfície.
 
@@ -36,64 +40,99 @@ Onde $\mu = \cos(\theta)$ é o cosseno do ângulo entre a linha de visada e a no
 
 Para dados irregularmente amostrados, utilizamos o periodograma Lomb-Scargle:
 
-$$P(\omega) = \frac{1}{2} \left\{ \frac{\left[\sum_j (x_j - \bar{x}) \cos\omega(t_j - \tau)\right]^2}{\sum_j \cos^2 \omega(t_j - \tau)} + \frac{\left[\sum_j (x_j - \bar{x}) \sin\omega(t_j - \tau)\right]^2}{\sum_j \sin^2 \omega(t_j - \tau)} \right\}$$
+```math
+P(\omega) = \frac{1}{2} \left\{ \frac{\left[\sum_j (x_j - \bar{x}) \cos\omega(t_j - \tau)\right]^2}{\sum_j \cos^2 \omega(t_j - \tau)} + \frac{\left[\sum_j (x_j - \bar{x}) \sin\omega(t_j - \tau)\right]^2}{\sum_j \sin^2 \omega(t_j - \tau)} \right\}
+```
 
 ### Box-Fitting Least Squares (BLS)
 
 O algoritmo BLS ajusta um modelo de caixa retangular:
 
-$$\chi^2 = \sum_{i=1}^{N} \frac{(f_i - m_i)^2}{\sigma_i^2}$$
+```math
+\chi^2 = \sum_{i=1}^{N} \frac{(f_i - m_i)^2}{\sigma_i^2}
+```
 
 Onde o modelo $m_i$ é:
 
-$$m_i = \begin{cases} 1 - \delta & \text{se } t_i \text{ em trânsito} \\ 1 & \text{caso contrário} \end{cases}$$
+```math
+m_i = \begin{cases} 1 - \delta & \text{se } t_i \text{ em trânsito} \\ 1 & \text{caso contrário} \end{cases}
+```
 
 ### Filtro de Kalman
 
 O filtro de Kalman estima estados ocultos através de:
 
 **Predição:**
-$$\hat{x}_{k|k-1} = F_k \hat{x}_{k-1|k-1}$$
-$$P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + Q_k$$
+
+```math
+\hat{x}_{k|k-1} = F_k \hat{x}_{k-1|k-1}
+```
+
+```math
+P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + Q_k
+```
 
 **Atualização:**
-$$K_k = P_{k|k-1} H_k^T (H_k P_{k|k-1} H_k^T + R_k)^{-1}$$
-$$\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - H_k \hat{x}_{k|k-1})$$
+
+```math
+K_k = P_{k|k-1} H_k^T (H_k P_{k|k-1} H_k^T + R_k)^{-1}
+```
+
+```math
+\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - H_k \hat{x}_{k|k-1})
+```
 
 ### Inferência Bayesiana
 
 A distribuição a posteriori dos parâmetros do modelo segue o Teorema de Bayes:
 
-$$P(\theta | D) = \frac{P(D | \theta) \cdot P(\theta)}{P(D)} = \frac{\mathcal{L}(\theta) \cdot \pi(\theta)}{\int \mathcal{L}(\theta) \pi(\theta) d\theta}$$
+```math
+P(\theta | D) = \frac{P(D | \theta) \cdot P(\theta)}{P(D)} = \frac{\mathcal{L}(\theta) \cdot \pi(\theta)}{\int \mathcal{L}(\theta) \pi(\theta) d\theta}
+```
 
 ### Verossimilhança Gaussiana
 
 A função de verossimilhança para dados fotométricos:
 
-$$\mathcal{L}(\theta) = \prod_{i=1}^{N} \frac{1}{\sqrt{2\pi\sigma_i^2}} \exp\left[-\frac{(f_i - m_i(\theta))^2}{2\sigma_i^2}\right]$$
+```math
+\mathcal{L}(\theta) = \prod_{i=1}^{N} \frac{1}{\sqrt{2\pi\sigma_i^2}} \exp\left[-\frac{(f_i - m_i(\theta))^2}{2\sigma_i^2}\right]
+```
 
 Log-verossimilhança:
-$$\ln \mathcal{L} = -\frac{1}{2} \sum_{i=1}^{N} \left[ \frac{(f_i - m_i)^2}{\sigma_i^2} + \ln(2\pi\sigma_i^2) \right]$$
+
+```math
+\ln \mathcal{L} = -\frac{1}{2} \sum_{i=1}^{N} \left[ \frac{(f_i - m_i)^2}{\sigma_i^2} + \ln(2\pi\sigma_i^2) \right]
+```
 
 ### MCMC - Metropolis-Hastings
 
 A probabilidade de aceitação no algoritmo Metropolis-Hastings:
 
-$$\alpha = \min\left(1, \frac{P(\theta')}{P(\theta)} \cdot \frac{q(\theta | \theta')}{q(\theta' | \theta)}\right)$$
+```math
+\alpha = \min\left(1, \frac{P(\theta')}{P(\theta)} \cdot \frac{q(\theta | \theta')}{q(\theta' | \theta)}\right)
+```
 
 ### Fator de Bayes
 
 Para comparação de modelos:
 
-$$B_{12} = \frac{P(D | M_1)}{P(D | M_2)} = \frac{\int P(D | \theta_1, M_1) P(\theta_1 | M_1) d\theta_1}{\int P(D | \theta_2, M_2) P(\theta_2 | M_2) d\theta_2}$$
+```math
+B_{12} = \frac{P(D | M_1)}{P(D | M_2)} = \frac{\int P(D | \theta_1, M_1) P(\theta_1 | M_1) d\theta_1}{\int P(D | \theta_2, M_2) P(\theta_2 | M_2) d\theta_2}
+```
 
 ### Critérios de Informação
 
 **AIC (Akaike):**
-$$\text{AIC} = 2k - 2\ln(\hat{\mathcal{L}})$$
+
+```math
+\text{AIC} = 2k - 2\ln(\hat{\mathcal{L}})
+```
 
 **BIC (Bayesiano):**
-$$\text{BIC} = k\ln(n) - 2\ln(\hat{\mathcal{L}})$$
+
+```math
+\text{BIC} = k\ln(n) - 2\ln(\hat{\mathcal{L}})
+```
 
 Onde $k$ é o número de parâmetros e $n$ o número de observações.
 
